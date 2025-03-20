@@ -9,11 +9,12 @@ class MoviePlayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /*if (kIsWeb) {
-      return _buildWebPlayer(url);
-    } else {*/
+    if (kIsWeb) {
+      return const Placeholder();
+      // return _buildWebPlayer(url);
+    } else {
       return _buildMobilePlayer(url);
-    // }
+    }
   }
 
   Widget _buildMobilePlayer(String url) {
