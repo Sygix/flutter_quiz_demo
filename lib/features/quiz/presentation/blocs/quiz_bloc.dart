@@ -6,8 +6,6 @@ import 'package:todo/features/quiz/data/entities/quiz_source.dart';
 import 'package:todo/features/quiz/domain/entities/question.dart';
 import 'package:todo/features/quiz/domain/usecases/get_questions.dart';
 
-import '../pages/score.dart';
-
 part 'quiz_event.dart';
 part 'quiz_state.dart';
 
@@ -17,9 +15,9 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
   final GetQuestionsUseCase getQuestions;
 
 
-  void _startTimer() {
+  void _startTimer({required bool movingOptions}) {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      add(TimerTickEvent());
+      add(TimerTickEvent(movingOptions: movingOptions));
     });
   }
 
@@ -28,9 +26,14 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
       emit(QuizLoading());
       try {
         final questions = await getQuestions.execute(event.source);
+        if(event.shuffledOptions) {
+          for (var q in questions) {
+            q.options.shuffle();
+          }
+        }
         _startTime = DateTime.now();
         emit(QuizLoaded(questions: questions, currentQuestionId: questions.first.id, elapsedTime: Duration.zero));
-        _startTimer();
+        _startTimer(movingOptions: event.movingOptions);
       } catch (e) {
         emit(QuizError(message: e.toString()));
       }
@@ -76,6 +79,7 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
     });
 
     on<ResetQuizEvent>((event, emit) {
+      this.close();
       emit(QuizInitial());
     });
 
@@ -83,6 +87,10 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
       if (state is QuizLoaded && _startTime != null) {
         final elapsedTime = DateTime.now().difference(_startTime!);
         final currentState = state as QuizLoaded;
+        if(event.movingOptions) {
+          final currentQuestion = currentState.questions.firstWhere((q) => q.id == currentState.currentQuestionId);
+          currentQuestion.options.shuffle();
+        }
         emit(currentState.copyWith(elapsedTime: elapsedTime));
       }
     });
@@ -90,6 +98,7 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
     @override
     Future<void> close() {
       _timer?.cancel();
+      _startTime = null;
       return super.close();
     }
   }

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo/features/quiz/presentation/blocs/quiz_bloc.dart';
 import 'package:todo/features/quiz/presentation/pages/score.dart';
 import 'package:todo/features/quiz/presentation/widgets/movie_player_widget.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class QuestionsScreen extends StatelessWidget {
   static const routeName = '/quiz';
