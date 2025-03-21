@@ -21,6 +21,11 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
     });
   }
 
+  void _resetTimer() {
+    _timer?.cancel();
+    _startTime = null;
+  }
+
   QuizBloc(this.getQuestions) : super(QuizInitial()) {
     on<LoadQuizEvent>((event, emit) async {
       emit(QuizLoading());
@@ -64,7 +69,7 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
         if (isLastQuestion) {
           final totalTime = DateTime.now().difference(_startTime!);
           emit(QuizFinished(score: newScore, totalQuestions: currentState.questions.length, totalTime: totalTime));
-          _timer?.cancel();
+          _resetTimer();
         } else {
           final nextQuestionId = currentState.questions[
             currentState.questions.indexWhere((q) => q.id == event.questionId) + 1
@@ -79,7 +84,7 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
     });
 
     on<ResetQuizEvent>((event, emit) {
-      this.close();
+      _resetTimer();
       emit(QuizInitial());
     });
 
@@ -94,12 +99,5 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
         emit(currentState.copyWith(elapsedTime: elapsedTime));
       }
     });
-
-    @override
-    Future<void> close() {
-      _timer?.cancel();
-      _startTime = null;
-      return super.close();
-    }
   }
 }
