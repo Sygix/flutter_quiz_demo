@@ -6,6 +6,8 @@ import 'package:todo/features/quiz/presentation/pages/questions.dart';
 import 'package:todo/features/quiz/presentation/pages/score.dart';
 import 'package:todo/features/quiz/presentation/pages/welcome.dart';
 
+import 'features/quiz/presentation/pages/history.dart';
+
 void main() {
   setupLocator();
   runApp(
@@ -35,6 +37,7 @@ class MyApp extends StatelessWidget {
           value: context.read<QuizBloc>(),
           child: const ScoreScreen(),
         ),
+        HistoryScreen.routeName: (context) => const HistoryScreen(),
       },
     );
   }

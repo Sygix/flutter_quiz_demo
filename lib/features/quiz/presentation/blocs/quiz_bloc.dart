@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:todo/features/quiz/data/entities/quiz_source.dart';
+import 'package:todo/features/quiz/data/helper/database_helper.dart';
 import 'package:todo/features/quiz/domain/entities/question.dart';
 import 'package:todo/features/quiz/domain/usecases/get_questions.dart';
+
+import '../../data/models/score_history_model.dart';
 
 part 'quiz_event.dart';
 part 'quiz_state.dart';
@@ -58,7 +61,7 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
       }
     });
 
-    on<AnswerQuestionEvent>((event, emit) {
+    on<AnswerQuestionEvent>((event, emit) async {
       if (state is QuizLoaded) {
         final currentState = state as QuizLoaded;
         final currentQuestion = currentState.questions.firstWhere((q) => q.id == event.questionId);
@@ -68,6 +71,14 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
 
         if (isLastQuestion) {
           final totalTime = DateTime.now().difference(_startTime!);
+          final historyEntry = ScoreHistory(
+            id: 0,
+            score: newScore,
+            totalQuestions: currentState.questions.length,
+            totalTime: totalTime,
+            date: DateTime.now(),
+          );
+          await DatabaseHelper().addScore(historyEntry);
           emit(QuizFinished(score: newScore, totalQuestions: currentState.questions.length, totalTime: totalTime));
           _resetTimer();
         } else {

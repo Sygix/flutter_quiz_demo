@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo/features/quiz/presentation/pages/history.dart';
 
 import '../../data/entities/quiz_source.dart';
 import '../widgets/quiz_option_card_widget.dart';
@@ -70,6 +71,11 @@ class WelcomePageState extends State<WelcomePage> {
                 });
               },
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, HistoryScreen.routeName),
+              child: const Text("Voir l'historique"),
+            )
           ],
         ),
       ),
